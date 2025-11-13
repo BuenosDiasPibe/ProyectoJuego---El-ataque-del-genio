@@ -10,29 +10,22 @@ namespace ProyectoJuego.Content
 {
     public class Obstaculo
     {
-        // la nueva clase para que aparezcan los obstaculos en el camino 
-        
-            private Texture2D _texture; // Textura del obstáculo
-            private Vector2 _position; // Posición actual del obstáculo
-            private float _speed; // Velocidad de movimiento vertical del obstáculo
+            private Texture2D _texture;
+            private Vector2 _position;
+            private float _speed;
 
-            public Vector2 Position => _position; // Exponer la posición para colisiones
+            public Vector2 Position => _position;
 
-            // Constructor
             public Obstaculo(Texture2D texture, Vector2 position, float speed)
             {
                 _texture = texture;
                 _position = position;
                 _speed = speed;
             }
-
-            // Actualizar posición
             public void Update(GameTime gameTime)
             {
                 _position.Y += _speed; // Mueve el obstáculo hacia abajo
             }
-
-            // Dibujar el obstáculo
             public void Draw(SpriteBatch spriteBatch)
             {
                 spriteBatch.Draw(_texture, _position, Color.White);

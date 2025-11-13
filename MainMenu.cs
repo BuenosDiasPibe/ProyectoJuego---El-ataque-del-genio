@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Tracing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,52 +9,48 @@ namespace ProyectoJuego
     // Clase que gestiona el Menú Principal del juego
     public class MainMenu
     {
-        // Variables privadas
-        private Texture2D buttonTexture; // Textura del botón (aspecto visual del botón)
-        private SpriteFont font;         // Fuente que se utilizará para dibujar el texto en los botones
-        private Rectangle playButton;    // Área del botón "Jugar" en la pantalla
-        private Rectangle exitButton;    // Área del botón "Salir" en la pantalla
+        private Texture2D buttonTexture;
+        private SpriteFont font;
+        private Rectangle playButton;
+        private Rectangle exitButton;
         private Action startGameAction;  // Acción que se ejecutará cuando el jugador haga clic en "Jugar"
         private Action exitAction;       // Acción que se ejecutará cuando el jugador haga clic en "Salir"
-        private Texture2D backgroundTexture; // Textura del fondo del menú principal
-
-        // Constructor del menú principal
-        public MainMenu(Texture2D buttonTexture, SpriteFont font, Texture2D backgroundTexture, Action startGameAction, Action exitAction)
+        private Action stupidAction;
+        private Texture2D backgroundTexture;
+        public MainMenu(Texture2D buttonTexture, SpriteFont font, Texture2D backgroundTexture, Action startGameAction, Action exitAction, Action stupidAction)
         {
-            this.buttonTexture = buttonTexture;          // Asigna la textura de los botones
-            this.font = font;                            // Asigna la fuente
-            this.backgroundTexture = backgroundTexture;  // Asigna la textura de fondo del menú
-            this.startGameAction = startGameAction;      // Asigna la acción para empezar el juego
-            this.exitAction = exitAction;                // Asigna la acción para salir del juego
+            this.buttonTexture = buttonTexture;
+            this.font = font;
+            this.backgroundTexture = backgroundTexture;
+            this.startGameAction = startGameAction;
+            this.exitAction = exitAction;
+            this.stupidAction = stupidAction;
 
-            // Define las posiciones y tamaños de los botones en la pantalla
-            playButton = new Rectangle(525, 550, 200, 50); // Botón "Jugar" (x, y, ancho, alto)
-            exitButton = new Rectangle(525, 650, 200, 50); // Botón "Salir" (x, y, ancho, alto)
+            playButton = new Rectangle(525, 550, 200, 50);
+            exitButton = new Rectangle(525, 650, 200, 50);
         }
 
-        // Método que actualiza la lógica del menú en cada frame
         public void Update(GameTime gameTime)
         {
-            // Obtiene el estado actual del mouse
             MouseState mouseState = Mouse.GetState();
 
-            // Verifica si el botón izquierdo del mouse está presionado
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
-                // Si el mouse está sobre el botón "Jugar" y es presionado
                 if (playButton.Contains(mouseState.Position))
                 {
-                    startGameAction?.Invoke(); // Ejecuta la acción para iniciar el juego
+                    startGameAction?.Invoke();
                 }
-                // Si el mouse está sobre el botón "Salir" y es presionado
                 else if (exitButton.Contains(mouseState.Position))
                 {
-                    exitAction?.Invoke(); // Ejecuta la acción para salir del juego
+                    exitAction?.Invoke();
+                }
+                else
+                {
+                    stupidAction?.Invoke();
                 }
             }
         }
 
-        // Método que dibuja el menú en la pantalla
         public void Draw(SpriteBatch spriteBatch)
         {
             // Dibuja la textura de fondo del menú principal
