@@ -15,8 +15,8 @@ namespace ProyectoJuego.Content
         private float speed;
         private Texture2D fireballTexture;
         private List<DisparoEnemigo> bolasDeFuego;
-        private float fireballCooldown;
-        private float timeSinceLastShot;
+        private float fireballCooldown = 1;
+        private float timeSinceLastShot = 0;
         private float leftBoundary;
         private float rightBoundary;
         private bool movingRight;
@@ -38,7 +38,7 @@ namespace ProyectoJuego.Content
             this.rightBoundary = rightBoundary;
             movingRight = true;
             bolasDeFuego = new List<DisparoEnemigo>();
-            vida = 100;
+            vida = 10;
         }
 
         // Método para recibir daño
@@ -73,10 +73,9 @@ namespace ProyectoJuego.Content
                 timeSinceLastShot = 0f;
             }
 
-            for (int i = bolasDeFuego.Count; i >= 2; i--)
+            for (int i = bolasDeFuego.Count -1; i >= 0; i--)
             {
                 bolasDeFuego[i].Update(gameTime);
-
                 // Comprueba colisión con el jugador
                 if (ColisionaConJugador(bolasDeFuego[i], jugador))
                 {
@@ -94,6 +93,7 @@ namespace ProyectoJuego.Content
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(texture, position, Color.White);
+            Debugger.Instance.DrawRectHollow(spriteBatch, new((int)position.X, (int)position.Y, texture.Width, texture.Height), 4, Color.Red);
 
             foreach (var bolaDeFuego in bolasDeFuego)
             {
@@ -106,8 +106,10 @@ namespace ProyectoJuego.Content
         {
             if (bolasDeFuego.Count > 0)
             { return; }
-
             Vector2 direction = jugadorPosition - position;
+            Random random = new();
+            Vector2 failure = new(random.Next(-20, 20));
+            direction = Vector2.Add(failure, direction);
             direction.Normalize();
 
             DisparoEnemigo nuevaBola = new DisparoEnemigo(fireballTexture, position, direction, 10f);
@@ -117,38 +119,36 @@ namespace ProyectoJuego.Content
         private bool ColisionaConJugador(DisparoEnemigo bolaDeFuego, Jugador jugador)
         {
             //TODO: poner las coliciones en el centro de los rectangulos
-            float escalaBolaDeFuego = 0.01f;
+            //float escalaBolaDeFuego = 0.01f;
             Rectangle balaRect = new Rectangle(
                 (int)bolaDeFuego.Position.X,
                 (int)bolaDeFuego.Position.Y,
-                (int)(bolaDeFuego.Texture.Width * escalaBolaDeFuego),
-                (int)(bolaDeFuego.Texture.Height * escalaBolaDeFuego)
+                (int)(bolaDeFuego.Texture.Width), //* escalaBolaDeFuego),
+                (int)(bolaDeFuego.Texture.Height) // * escalaBolaDeFuego)
             );
             Rectangle jugadorRect = new Rectangle(
                 (int)jugador.Position.X,
                 (int)jugador.Position.Y,
-                (int)(jugador.Texture.Width * 0.25f),
-                (int)(jugador.Texture.Height * 0.5f)
+                (int)(jugador.Texture.Width), //* 0.25f),
+                (int)(jugador.Texture.Height)// * 0.5f)
             );
             return balaRect.Intersects(jugadorRect);
         }
-
-
-        public void DrawHealthBar(SpriteBatch spriteBatch)
+        public void DrawHealthBar(SpriteBatch spriteBatch, Texture2D texture)
         {
             int barWidth = 100;
-            int barHeight = 30;
+            int barHeight = 20;
             int healthWidth = (int)(vida / 100f * barWidth);
 
             spriteBatch.Draw(//background
                 texture,
-                new Rectangle((int)position.X, (int)position.Y - 20, barWidth, barHeight),
+                new Rectangle((int)position.X, (int)(position.Y - barHeight*1.2f), barWidth, barHeight),
                 Color.Yellow
             );
 
             spriteBatch.Draw(//foreground
                 texture,
-                new Rectangle((int)position.X, (int)position.Y - 20, healthWidth, barHeight),
+                new Rectangle((int)position.X, (int)(position.Y - barHeight*1.2f), healthWidth, barHeight),
                 Color.Red
             );
         }

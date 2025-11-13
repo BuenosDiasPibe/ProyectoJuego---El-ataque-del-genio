@@ -32,6 +32,7 @@ namespace ProyectoJuego.Content
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(texture, position, Color.Yellow);
+            Debugger.Instance.DrawRectHollow(spriteBatch, new((int)position.X, (int)position.Y, texture.Width, texture.Height), 4, Color.White);
         }
     }
 }

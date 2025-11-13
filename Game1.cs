@@ -11,14 +11,13 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace ProyectoJuego
 {
-    // Enum que define los posibles estados del juego
     public enum GameState
     {
-        MainMenu,  // Menú principal
-        Playing,   // Jugando
-        Paused,    // Pausado//nuevo
-        GameOver,  // Fin del juego
-        Victory    // Nuevo estado de victoria//nuevo 
+        MainMenu,
+        Playing,
+        Paused,
+        GameOver,
+        Victory
     }
 
 
@@ -34,6 +33,7 @@ namespace ProyectoJuego
         private Jugador jugador;
         private GameState currentState;
         private Texture2D _gameBackgroundTexture;
+        Texture2D jugador_text;
         private Enemigo enemigo;
         private SpriteFont font;
         private List<Obstaculo> _obstaculos;
@@ -48,13 +48,13 @@ namespace ProyectoJuego
             IsMouseVisible = true;
             _graphics.PreferredBackBufferWidth = 1280;
             _graphics.PreferredBackBufferHeight = 1000;
-
             _graphics.ApplyChanges();
         }
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _obstaculoTexture = Content.Load<Texture2D>("enemigo");
+            jugador_text = Content.Load<Texture2D>("jugador");
             _obstaculos = new List<Obstaculo>();
             _spawnCooldown = 2f;
             _timeSinceLastSpawn = 0f;
@@ -75,9 +75,9 @@ namespace ProyectoJuego
             //________________________________________________________________________________________
             //eso seria para el sonido pero no llegamos a ponerlo
             // Carga de texturas
-            Texture2D enemyTexture = Content.Load<Texture2D>("nuevoAutoPolicia");//nuevo diseño
+            Texture2D enemyTexture = Content.Load<Texture2D>("nuevoAutoPolicia");
             Texture2D fireballTexture = Content.Load<Texture2D>("balaPolicia");
-            Texture2D playerTexture = Content.Load<Texture2D>("nuevoAutoJugador");//nuevo diseño
+            Texture2D playerTexture = Content.Load<Texture2D>("nuevoAutoJugador");
             Texture2D buttonTexture = Content.Load<Texture2D>("button");
             Texture2D bulletTexture = Content.Load<Texture2D>("balaJugador2");
             Texture2D backgroundTexture = Content.Load<Texture2D>("menu");
@@ -104,7 +104,7 @@ namespace ProyectoJuego
                 100f,
                 775f
             );
-
+            Debugger.Initialize(_graphics.GraphicsDevice);
         }
 
         protected override void Update(GameTime gameTime)
@@ -260,7 +260,7 @@ namespace ProyectoJuego
                 8f,
                 _graphics.PreferredBackBufferWidth,
                 _graphics.PreferredBackBufferHeight,
-                100
+                1
             );
             enemigo = new Enemigo(
                 Content.Load<Texture2D>("nuevoAutoPolicia"),
@@ -308,12 +308,12 @@ namespace ProyectoJuego
                     }
 
                     jugador.Draw(_spriteBatch);
-                    jugador.DrawHealthBar(_spriteBatch);
-
-                    if (enemigo != null)
+                    Debugger.Instance.DrawRectHollow(_spriteBatch, new((int)jugador.Position.X, (int)jugador.Position.Y, jugador.Texture.Width, jugador.Texture.Height), 4, Color.White);
+                    jugador.DrawHealthBar(_spriteBatch, jugador_text);
+                    if(enemigo != null)
                     {
                         enemigo.Draw(_spriteBatch);
-                        enemigo.DrawHealthBar(_spriteBatch);
+                        enemigo.DrawHealthBar(_spriteBatch, jugador_text);
                     }
                     break;
                 case GameState.Paused:

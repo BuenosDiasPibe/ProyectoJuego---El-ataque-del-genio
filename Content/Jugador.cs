@@ -23,14 +23,13 @@ namespace ProyectoJuego.Content
         public Vector2 Position => position;  // Posición del jugador
         public int Vida => vida;              // Vida del jugador
 
-        // Constructor
         public Jugador(Texture2D texture, Texture2D bulletTexture, Vector2 position, float speed, int screenWidth, int screenHeight, int vida)
         {
             this.texture = texture;
             this.bulletTexture = bulletTexture;
             this.position = position;
             this.speed = speed;
-            this.vida = vida;
+            this.vida = 2;
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
             balas = new List<DisparoJugador>();
@@ -79,8 +78,8 @@ namespace ProyectoJuego.Content
         private void Disparar()
         {
             Vector2 bulletPositionLeft = new Vector2(
-                position.X - bulletTexture.Width/30, // A la izquierda del jugador
-                position.Y + texture.Height  - bulletTexture.Height  // Centrado verticalmente
+                position.X - bulletTexture.Width/30,
+                position.Y + texture.Height - bulletTexture.Height
             );
             Vector2 direction = new Vector2(0, 1);
             DisparoJugador balaIzquierda = new DisparoJugador(bulletTexture, bulletPositionLeft, direction, 5f);
@@ -89,22 +88,23 @@ namespace ProyectoJuego.Content
         public void ReducirVida(int cantidad)
         {
             if (vida <= 0) return;
+            Console.WriteLine($"vida: {vida}");
             vida -= cantidad;
         }
-        public void DrawHealthBar(SpriteBatch spriteBatch)
+        public void DrawHealthBar(SpriteBatch spriteBatch, Texture2D texture)
         {
             int barWidth = 100;
             int barHeight = 50;
             int healthWidth = (int)((vida / 10f) * barWidth);
             spriteBatch.Draw( //drawing background
                 texture,
-                new Rectangle((int)position.X, (int)position.Y - 20, barWidth, barHeight),
+                new Rectangle((int)position.X, (int)(position.Y - barHeight*1.2f), barWidth, barHeight),
                 Color.Gray
             );
             spriteBatch.Draw( //drawing foreground
                 texture,
-                new Rectangle((int)position.X, (int)position.Y - 20, healthWidth, barHeight),
-                Color.Yellow
+                new Rectangle((int)position.X, (int)(position.Y - barHeight*1.2f), healthWidth, barHeight),
+                Color.Green
             );
         }
     }
