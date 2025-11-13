@@ -389,18 +389,12 @@ namespace ProyectoJuego
                 bala.Texture.Height
             );
 
-            // Ajustes para hacer la colisión más precisa, con un margen menor
-            int ajusteX = 400;     // Ajuste de posición X (reduce el margen)
-            int ajusteY = 700;     // Ajuste de posición Y (reduce el margen)
-            int ajusteAncho = 500; // Ajuste de ancho (reduce el área de colisión)
-            int ajusteAltura = 700; // Ajuste de altura (reduce el área de colisión)
-
             // Rectángulo de colisión para el enemigo, con los ajustes para hacer la colisión más ajustada
             Rectangle enemigoRect = new Rectangle(
-                (int)enemigo.Position.X + ajusteX,  // Posición X ajustada
-                (int)enemigo.Position.Y + ajusteY,  // Posición Y ajustada
-                enemigo.Texture.Width - ajusteAncho,  // Ancho ajustado para reducir la colisión
-                enemigo.Texture.Height - ajusteAltura  // Altura ajustada para reducir la colisión
+                (int)enemigo.Position.X,
+                (int)enemigo.Position.Y,
+                enemigo.Texture.Width,
+                enemigo.Texture.Height
             );
 
             return balaRect.Intersects(enemigoRect);

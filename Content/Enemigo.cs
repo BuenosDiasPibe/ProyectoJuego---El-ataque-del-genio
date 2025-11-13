@@ -25,7 +25,7 @@ namespace ProyectoJuego.Content
         public bool EnemigoMuerto = false;
         public int Vida => vida;
         public Vector2 Position => position;
-        public Texture2D Texture => texture;  // Propiedad para acceder a la textura
+        public Texture2D Texture => texture;
         public bool DisparoRealizado { get; private set; }
 
         public Enemigo(Texture2D texture, Texture2D fireballTexture, Vector2 position, float speed, float leftBoundary, float rightBoundary)
