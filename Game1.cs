@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using ProyectoJuego.Content;
-using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
 using Color = Microsoft.Xna.Framework.Color;
