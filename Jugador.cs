@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 
-namespace ProyectoJuego.Content
+namespace ProyectoJuego
 {
     // Clase que representa al jugador en el juego
     public class Jugador
@@ -17,8 +17,8 @@ namespace ProyectoJuego.Content
         private int screenWidth;
         private int screenHeight;
         private Texture2D bulletTexture;
-        private List<DisparoJugador> balas;
-        public List<DisparoJugador> Balas => balas;
+        private List<Projectile> balas;
+        public List<Projectile> Balas => balas;
         public Texture2D Texture => texture;  // Textura del jugador
         public Vector2 Position => position;  // Posición del jugador
         public int Vida => vida;              // Vida del jugador
@@ -32,7 +32,7 @@ namespace ProyectoJuego.Content
             this.vida = 2;
             this.screenWidth = screenWidth;
             this.screenHeight = screenHeight;
-            balas = new List<DisparoJugador>();
+            balas = new();
         }
         public void Update(GameTime gameTime)
         {
@@ -64,7 +64,7 @@ namespace ProyectoJuego.Content
             for (int i = balas.Count - 1; i >= 0; i--)
             {
                 balas[i].Update(gameTime);
-                if (balas[i].Position.Y < 0)
+                if (balas[i].position.Y < 0)
                 { balas.RemoveAt(i); }
             }
         }
@@ -82,7 +82,7 @@ namespace ProyectoJuego.Content
                 position.Y + texture.Height - bulletTexture.Height
             );
             Vector2 direction = new Vector2(0, 1);
-            DisparoJugador balaIzquierda = new DisparoJugador(bulletTexture, bulletPositionLeft, direction, 5f);
+            Projectile balaIzquierda = new(bulletTexture, ProjectileType.PlayerShoot, bulletPositionLeft, direction, 5f);
             balas.Add(balaIzquierda);
         }
         public void ReducirVida(int cantidad)

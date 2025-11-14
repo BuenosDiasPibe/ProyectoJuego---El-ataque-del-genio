@@ -16,6 +16,7 @@ namespace ProyectoJuego
         private Texture2D rectangleTexture;
         private static object sync = new();
         private static Debugger instance;
+        public bool canDraw = true;
         public static void Initialize(GraphicsDevice graphicsDevice)
         {
             if (instance != null) return;
@@ -42,6 +43,7 @@ namespace ProyectoJuego
         }
         public void DrawRectHollow(SpriteBatch spriteBatch, Rectangle rect, int thickness, Color color)
         {
+            if(!canDraw) return;
             spriteBatch.Draw(
                 rectangleTexture,
                 new Rectangle(

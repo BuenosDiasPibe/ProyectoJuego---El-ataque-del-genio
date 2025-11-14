@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using ProyectoJuego.Content;
 using System;
 using System.Collections.Generic;
 using Color = Microsoft.Xna.Framework.Color;
@@ -36,7 +35,7 @@ namespace ProyectoJuego
         Texture2D jugador_text;
         private Enemigo enemigo;
         private SpriteFont font;
-        private List<Obstaculo> _obstaculos;
+        private List<Projectile> _obstaculos;
         private Texture2D _obstaculoTexture;
         private float _spawnCooldown;
         private float _timeSinceLastSpawn;
@@ -55,7 +54,7 @@ namespace ProyectoJuego
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _obstaculoTexture = Content.Load<Texture2D>("enemigo");
             jugador_text = Content.Load<Texture2D>("jugador");
-            _obstaculos = new List<Obstaculo>();
+            _obstaculos = new();
             _spawnCooldown = 2f;
             _timeSinceLastSpawn = 0f;
             //falta poner el rango en donde sale los obstaculos osea (que no ocupe todo la pantalla sino que solo una parte)
@@ -106,6 +105,7 @@ namespace ProyectoJuego
             );
             Debugger.Initialize(_graphics.GraphicsDevice);
         }
+        KeyboardState lastState = new();
 
         protected override void Update(GameTime gameTime)
         {
@@ -115,13 +115,20 @@ namespace ProyectoJuego
             var keyboardState = Keyboard.GetState();
 
             // Pause
-            if (keyboardState.IsKeyDown(Keys.P) && currentState != GameState.Paused)
+            if (keyboardState.IsKeyDown(Keys.P) && lastState.IsKeyUp(Keys.P))
             {
-                currentState = GameState.Paused;
+                if(currentState == GameState.Playing)
+                {
+                    currentState = GameState.Paused;
+                }
+                else if(currentState == GameState.Paused)
+                {
+                    currentState = GameState.Playing;
+                }
             }
-            else if (keyboardState.IsKeyDown(Keys.P) && currentState == GameState.Paused)
+            if(keyboardState.IsKeyDown(Keys.F3) && lastState.IsKeyUp(Keys.F3))
             {
-                currentState = GameState.Playing;
+                Debugger.Instance.canDraw = !Debugger.Instance.canDraw;
             }
 
             switch (currentState)
@@ -186,10 +193,13 @@ namespace ProyectoJuego
 
                         Random random = new Random();
                         float randomX = random.Next(minX, maxX);
-                        Obstaculo nuevoObstaculo = new Obstaculo(
+                        float speed = 1;
+                        Projectile nuevoObstaculo = new(
                             _obstaculoTexture,
+                            ProjectileType.Obstacle,
                             new Vector2(randomX, -_obstaculoTexture.Height),
-                            5f
+                            new(0,speed),
+                            speed
                         );
 
                         _obstaculos.Add(nuevoObstaculo);
@@ -205,7 +215,7 @@ namespace ProyectoJuego
                             jugador.ReducirVida(1);
                             _obstaculos.RemoveAt(i);
                         }
-                        else if (_obstaculos[i].Position.Y > _graphics.PreferredBackBufferHeight)
+                        else if (_obstaculos[i].position.Y > _graphics.PreferredBackBufferHeight)
                         {
                             _obstaculos.RemoveAt(i);
                         }
@@ -247,7 +257,7 @@ namespace ProyectoJuego
                     }
                     break;
             }
-
+            lastState = keyboardState;
             base.Update(gameTime);
         }
         private void ResetGame()
@@ -359,15 +369,15 @@ namespace ProyectoJuego
             Console.WriteLine("you are dumb as fuck");
             Exit();
         }
-        private bool ColisionaConJugador(Obstaculo obstaculo, Jugador jugador)
+        private bool ColisionaConJugador(Projectile obstaculo, Jugador jugador)
         {
             float escalaObstaculo = 0.25f;
             float escalaJugador = 0.25f;
             float escalaJugadorAltura = 0.5f;
 
             Rectangle obstaculoRect = new Rectangle(
-                (int)obstaculo.Position.X,
-                (int)obstaculo.Position.Y,
+                (int)obstaculo.position.X,
+                (int)obstaculo.position.Y,
                 (int)(_obstaculoTexture.Width * escalaObstaculo),
                 (int)(_obstaculoTexture.Height * escalaObstaculo)
             );
@@ -380,13 +390,13 @@ namespace ProyectoJuego
             );
             return obstaculoRect.Intersects(jugadorRect); // Verifica la colisión
         }
-        private bool ColisionaConEnemigo(DisparoJugador bala, Enemigo enemigo)
+        private bool ColisionaConEnemigo(Projectile bala, Enemigo enemigo)
         {
             Rectangle balaRect = new Rectangle(
-                (int)bala.Position.X,
-                (int)bala.Position.Y,
-                bala.Texture.Width,
-                bala.Texture.Height
+                (int)bala.position.X,
+                (int)bala.position.Y,
+                bala.texture.Width,
+                bala.texture.Height
             );
 
             // Rectángulo de colisión para el enemigo, con los ajustes para hacer la colisión más ajustada

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ProyectoJuego.Content
+namespace ProyectoJuego
 {
     public class Enemigo
     {
@@ -14,7 +14,7 @@ namespace ProyectoJuego.Content
         private Vector2 position;
         private float speed;
         private Texture2D fireballTexture;
-        private List<DisparoEnemigo> bolasDeFuego;
+        private List<Projectile> bolasDeFuego;
         private float fireballCooldown = 1;
         private float timeSinceLastShot = 0;
         private float leftBoundary;
@@ -37,7 +37,7 @@ namespace ProyectoJuego.Content
             this.leftBoundary = leftBoundary;
             this.rightBoundary = rightBoundary;
             movingRight = true;
-            bolasDeFuego = new List<DisparoEnemigo>();
+            bolasDeFuego = new();
             vida = 10;
         }
 
@@ -54,6 +54,7 @@ namespace ProyectoJuego.Content
 
         public void Update(GameTime gameTime, Vector2 jugadorPosition, Jugador jugador)
         {
+            //State Machine
             if (movingRight)
             {
                 position.X += speed;
@@ -83,7 +84,7 @@ namespace ProyectoJuego.Content
                     bolasDeFuego.RemoveAt(i);
                     continue;
                 }
-                else if (bolasDeFuego[i].Position.Y > 1000 || bolasDeFuego[i].Position.Y < 0)
+                else if (bolasDeFuego[i].position.Y > 1000 || bolasDeFuego[i].position.Y < 0)
                 {
                     bolasDeFuego.RemoveAt(i);
                     continue;
@@ -112,19 +113,18 @@ namespace ProyectoJuego.Content
             direction = Vector2.Add(failure, direction);
             direction.Normalize();
 
-            DisparoEnemigo nuevaBola = new DisparoEnemigo(fireballTexture, position, direction, 10f);
-
+            Projectile nuevaBola = new(fireballTexture, ProjectileType.EnemyShoot, position, direction, 10f);
             bolasDeFuego.Add(nuevaBola);
         }
-        private bool ColisionaConJugador(DisparoEnemigo bolaDeFuego, Jugador jugador)
+        private bool ColisionaConJugador(Projectile bolaDeFuego, Jugador jugador)
         {
             //TODO: poner las coliciones en el centro de los rectangulos
             //float escalaBolaDeFuego = 0.01f;
             Rectangle balaRect = new Rectangle(
-                (int)bolaDeFuego.Position.X,
-                (int)bolaDeFuego.Position.Y,
-                (int)(bolaDeFuego.Texture.Width), //* escalaBolaDeFuego),
-                (int)(bolaDeFuego.Texture.Height) // * escalaBolaDeFuego)
+                (int)bolaDeFuego.position.X,
+                (int)bolaDeFuego.position.Y,
+                (int)(bolaDeFuego.texture.Width), //* escalaBolaDeFuego),
+                (int)(bolaDeFuego.texture.Height) // * escalaBolaDeFuego)
             );
             Rectangle jugadorRect = new Rectangle(
                 (int)jugador.Position.X,
