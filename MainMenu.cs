@@ -7,14 +7,14 @@ using Microsoft.Xna.Framework.Input;
 namespace ProyectoJuego
 {
     // Clase que gestiona el Menú Principal del juego
-    public class MainMenu
+    public class MainMenu : IScene
     {
         private Texture2D buttonTexture;
         private SpriteFont font;
         private Rectangle playButton;
         private Rectangle exitButton;
-        private Action startGameAction;  // Acción que se ejecutará cuando el jugador haga clic en "Jugar"
-        private Action exitAction;       // Acción que se ejecutará cuando el jugador haga clic en "Salir"
+        private Action startGameAction;
+        private Action exitAction;
         private Action stupidAction;
         private Texture2D backgroundTexture;
         public MainMenu(Texture2D buttonTexture, SpriteFont font, Texture2D backgroundTexture, Action startGameAction, Action exitAction, Action stupidAction)
@@ -51,7 +51,7 @@ namespace ProyectoJuego
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // Dibuja la textura de fondo del menú principal
             spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, 1280, 1000), Color.White);
@@ -77,5 +77,14 @@ namespace ProyectoJuego
                 spriteBatch.DrawString(font, "SALIR", exitTextPosition, Color.Black);
             }
         }
+
+        public void LoadContent()
+        { }
+
+        public void UnloadContent()
+        { }
+
+        public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
+        { }
     }
 }

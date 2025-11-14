@@ -27,6 +27,7 @@ namespace ProyectoJuego
         private float _backgroundSpeed = 2;
 
         private GraphicsDeviceManager _graphics;
+        private Viewport viewport;
         private SpriteBatch _spriteBatch;
         private MainMenu _mainMenu;
         private Jugador jugador;
@@ -39,6 +40,7 @@ namespace ProyectoJuego
         private Texture2D _obstaculoTexture;
         private float _spawnCooldown;
         private float _timeSinceLastSpawn;
+        SceneManager sceneManager = new();
 
         public Game1()
         {
@@ -48,6 +50,7 @@ namespace ProyectoJuego
             _graphics.PreferredBackBufferWidth = 1280;
             _graphics.PreferredBackBufferHeight = 1000;
             _graphics.ApplyChanges();
+            viewport = _graphics.GraphicsDevice.Viewport;
         }
         protected override void LoadContent()
         {
@@ -111,7 +114,8 @@ namespace ProyectoJuego
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
                 Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+                {Exit();}
+
             var keyboardState = Keyboard.GetState();
 
             // Pause
@@ -291,7 +295,7 @@ namespace ProyectoJuego
             switch (currentState)
             {
                 case GameState.MainMenu:
-                    _mainMenu.Draw(_spriteBatch);
+                    _mainMenu.Draw(gameTime, _spriteBatch);
                     break;
                 case GameState.Playing:
                     _spriteBatch.Draw(
