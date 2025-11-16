@@ -1,18 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 namespace ProyectoJuego
 {
     public class SceneManager
     {
-        private Stack<IScene> sceneManager;
-        public SceneManager()
+        private Stack<Scene> sceneManager;
+        public Dictionary<GameState, Action> actionByState = new();
+        public ContentManager contentManager;
+        public GraphicsDeviceManager graphics;
+
+        public SceneManager(ContentManager contentManager, GraphicsDeviceManager graphics)
         {
             sceneManager = new();
+            this.contentManager = contentManager;
+            this.graphics = graphics;
         }
-        public void AddScene(IScene scene)
+        public void AddScene(Scene scene)
         {
             scene.LoadContent();
             sceneManager.Push(scene);
@@ -24,7 +30,7 @@ namespace ProyectoJuego
             sceneManager.Pop();
             sceneManager.Peek().LoadContent();
         }
-        public IScene GetScene()
+        public Scene GetScene()
         {
             return sceneManager.Peek();
         }

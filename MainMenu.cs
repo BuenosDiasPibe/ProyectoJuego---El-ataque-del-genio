@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 namespace ProyectoJuego
 {
     // Clase que gestiona el Menú Principal del juego
-    public class MainMenu : IScene
+    public class MainMenu : Scene
     {
         private Texture2D buttonTexture;
         private SpriteFont font;
@@ -15,8 +15,11 @@ namespace ProyectoJuego
         private Rectangle exitButton;
         private Action startGameAction;
         private Action exitAction;
-        private Action stupidAction;
+        //private Action stupidAction;
         private Texture2D backgroundTexture;
+
+        private SceneManager sceneManager;
+
         public MainMenu(Texture2D buttonTexture, SpriteFont font, Texture2D backgroundTexture, Action startGameAction, Action exitAction, Action stupidAction)
         {
             this.buttonTexture = buttonTexture;
@@ -24,13 +27,28 @@ namespace ProyectoJuego
             this.backgroundTexture = backgroundTexture;
             this.startGameAction = startGameAction;
             this.exitAction = exitAction;
-            this.stupidAction = stupidAction;
+            //this.stupidAction = stupidAction;
 
             playButton = new Rectangle(525, 550, 200, 50);
             exitButton = new Rectangle(525, 650, 200, 50);
         }
+        public MainMenu(SceneManager sceneManager)
+        {
+          this.sceneManager = sceneManager;
+          this.content = sceneManager.contentManager;
+          this.graphics = sceneManager.graphics;
+          buttonTexture = content.Load<Texture2D>("button");
+          font = content.Load<SpriteFont>("font");
+          backgroundTexture = content.Load<Texture2D>("menu");
+          exitAction = sceneManager.actionByState[GameState.Exit];
+          startGameAction = sceneManager.actionByState[GameState.Playing];
 
-        public void Update(GameTime gameTime)
+          playButton = new Rectangle(525, 550, 200, 50);
+          exitButton = new Rectangle(525, 650, 200, 50);
+        }
+
+
+        public override void Update(GameTime gameTime)
         {
             MouseState mouseState = Mouse.GetState();
 
@@ -44,14 +62,14 @@ namespace ProyectoJuego
                 {
                     exitAction?.Invoke();
                 }
-                else
-                {
-                    stupidAction?.Invoke();
-                }
+                // else
+                // {
+                //     stupidAction?.Invoke();
+                // }
             }
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             // Dibuja la textura de fondo del menú principal
             spriteBatch.Draw(backgroundTexture, new Rectangle(0, 0, 1280, 1000), Color.White);
@@ -78,13 +96,13 @@ namespace ProyectoJuego
             }
         }
 
-        public void LoadContent()
+        public override void LoadContent()
         { }
 
-        public void UnloadContent()
+        public override void UnloadContent()
         { }
 
-        public void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
+        public override void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
         { }
     }
 }

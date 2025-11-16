@@ -5,8 +5,10 @@ namespace ProyectoJuego
     {
         public static void Main(string[] args)
         {
-            using var game = new Game1();
-            game.Run();
+            using (var game = new Game1())
+	    {
+		    game.Run();
+	    }
         }
 
     }
