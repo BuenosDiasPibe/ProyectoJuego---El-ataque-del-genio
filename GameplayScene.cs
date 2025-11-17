@@ -20,7 +20,6 @@ namespace ProyectoJuego
     private float _spawnCooldown;
     private float _timeSinceLastSpawn;
 
-    private ContentManager cm;
     private SceneManager sm;
     private GraphicsDeviceManager gd;
 
@@ -31,11 +30,13 @@ namespace ProyectoJuego
     private event Action gameOver;
     private event Action victory;
     KeyboardState lastKey;
-
+    SoundEffectInstance _playerShootSound;
+    SoundEffectInstance _enemyShootSound;
+    SoundEffectInstance _collisionSound;
 
     public GameplayScene( ContentManager cm, SceneManager sm, GraphicsDeviceManager gd) 
     {
-      this.cm = cm;
+      this.content = cm;
       this.sm = sm;
       this.gd = gd;
       pause = sm.actionByState[GameState.Paused];
@@ -45,33 +46,45 @@ namespace ProyectoJuego
 
     public override void LoadContent()
     {
+      MediaPlayer.Resume();
       _obstaculos = new();
       _spawnCooldown = 2f;
       _timeSinceLastSpawn = 0f;
 
-      _obstaculoTexture = cm.Load<Texture2D>("enemigo");
-      Texture2D enemyTexture = cm.Load<Texture2D>("nuevoAutoPolicia");
-      Texture2D fireballTexture = cm.Load<Texture2D>("balaPolicia");
-      Texture2D playerTexture = cm.Load<Texture2D>("nuevoAutoJugador");
-      jugador_text = cm.Load<Texture2D>("jugador");
+      _obstaculoTexture = content.Load<Texture2D>("enemigo");
+      Texture2D enemyTexture = content.Load<Texture2D>("nuevoAutoPolicia");
+      Texture2D fireballTexture = content.Load<Texture2D>("balaPolicia");
+      Texture2D playerTexture = content.Load<Texture2D>("nuevoAutoJugador");
+      jugador_text = content.Load<Texture2D>("jugador");
 
-      _gameBackgroundTexture = cm.Load<Texture2D>("fondoCiudad");
+      _playerShootSound = content.Load<SoundEffect>("disparoJugador").CreateInstance();
+      _enemyShootSound = content.Load<SoundEffect>("disparoEnemigo").CreateInstance();
+      _collisionSound = content.Load<SoundEffect>("colision").CreateInstance();
+
+      _gameBackgroundTexture = content.Load<Texture2D>("fondoCiudad");
 
       jugador = new Jugador(playerTexture,
-                            cm.Load<Texture2D>("balaJugador2"),
+                            content.Load<Texture2D>("balaJugador2"),
                             new Vector2(600, 100), 8f,
                             gd.PreferredBackBufferWidth,
                             gd.PreferredBackBufferHeight,
                             100);
+            jugador.sfx = base.content.Load<SoundEffect>("disparoJugador");
 
-      enemigo = new Enemigo(cm.Load<Texture2D>("nuevoAutoPolicia"),
-                            cm.Load<Texture2D>("balaPolicia"),
+      enemigo = new Enemigo(content.Load<Texture2D>("nuevoAutoPolicia"),
+                            content.Load<Texture2D>("balaPolicia"),
                             new Vector2(400, 700),
                             6f, 100f, 775f);
     }
+
     public override void Update(GameTime gameTime)
     {
       _backgroundOffsetY += _backgroundSpeed; //moving background
+      Random random = new();
+      if(Keyboard.GetState().IsKeyDown(Keys.P) && lastKey.IsKeyUp(Keys.P))
+      {
+        pause?.Invoke();
+      }
 
       if (_backgroundOffsetY >= gd.PreferredBackBufferHeight)
       {
@@ -85,12 +98,14 @@ namespace ProyectoJuego
 
         if (enemigo.DisparoRealizado)
         {
-            //_enemyShootSound.Play();
+          _enemyShootSound.Play();
+          enemigo.DisparoRealizado = false;
         }
 
         if (enemigo.Vida <= 0)
         {
             enemigo = null; 
+            MediaPlayer.Pause();
             victory?.Invoke();
         }
       }
@@ -101,13 +116,14 @@ namespace ProyectoJuego
 
           if (enemigo != null && ColisionaConEnemigo(jugador.Balas[i], enemigo))
           {
-              //_collisionSound.Play(); // Sonido de colisión al golpear al enemigo
+              _collisionSound.Play(); // Sonido de colisión al golpear al enemigo
               enemigo.RecibirDaño(1);
               jugador.Balas.RemoveAt(i);
 
               if (enemigo.Vida <= 0)
               {
                 enemigo = null;
+                MediaPlayer.Pause();
                 victory?.Invoke();
               }
           }
@@ -118,7 +134,6 @@ namespace ProyectoJuego
           int minX = 300;
           int maxX = gd.PreferredBackBufferWidth - 300;
 
-          Random random = new Random();
           float randomX = random.Next(minX, maxX);
           float speed = 1;
           Projectile nuevoObstaculo = new(
@@ -138,9 +153,11 @@ namespace ProyectoJuego
 
           if (ColisionaConJugador(_obstaculos[i], jugador))
           {
-              //_collisionSound.Play();
-              jugador.ReducirVida(1);
-              _obstaculos.RemoveAt(i);
+            _collisionSound.Pitch = (float)random.NextDouble();
+            _collisionSound.Play();
+
+            jugador.ReducirVida(1);
+            _obstaculos.RemoveAt(i);
           }
           else if (_obstaculos[i].position.Y > gd.PreferredBackBufferHeight)
           {
@@ -191,28 +208,27 @@ namespace ProyectoJuego
 
     public override void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
     { }
-
-
     public override void UnloadContent()
     { }
+
     private static bool ColisionaConJugador(Projectile obstaculo, Jugador jugador)
     {
-        float escalaObstaculo = 0.25f;
-        float escalaJugador = 0.25f;
-        float escalaJugadorAltura = 0.5f;
+        //float escalaObstaculo = 0.25f;
+        //float escalaJugador = 0.25f;
+        //float escalaJugadorAltura = 0.5f;
 
         Rectangle obstaculoRect = new Rectangle(
             (int)obstaculo.position.X,
             (int)obstaculo.position.Y,
-            (int)(obstaculo.texture.Width * escalaObstaculo),
-            (int)(obstaculo.texture.Height * escalaObstaculo)
+            (int)(obstaculo.texture.Width), // * escalaObstaculo),
+            (int)(obstaculo.texture.Height) // * escalaObstaculo)
         );
 
         Rectangle jugadorRect = new Rectangle(
             (int)jugador.Position.X,
             (int)jugador.Position.Y,
-            (int)(jugador.Texture.Width * escalaJugador),
-            (int)(jugador.Texture.Height * escalaJugadorAltura)
+            (int)(jugador.Texture.Width),// * escalaJugador),
+            (int)(jugador.Texture.Height)// * escalaJugadorAltura)
         );
         return obstaculoRect.Intersects(jugadorRect); // Verifica la colisión
     }

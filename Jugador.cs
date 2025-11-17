@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -22,6 +23,7 @@ namespace ProyectoJuego
         public Texture2D Texture => texture;  // Textura del jugador
         public Vector2 Position => position;  // Posición del jugador
         public int Vida => vida;              // Vida del jugador
+        public SoundEffect sfx;
 
         public Jugador(Texture2D texture, Texture2D bulletTexture, Vector2 position, float speed, int screenWidth, int screenHeight, int vida)
         {
@@ -83,6 +85,7 @@ namespace ProyectoJuego
             );
             Vector2 direction = new Vector2(0, 1);
             Projectile balaIzquierda = new(bulletTexture, ProjectileType.PlayerShoot, bulletPositionLeft, direction, 5f);
+            sfx.Play();
             balas.Add(balaIzquierda);
         }
         public void ReducirVida(int cantidad)

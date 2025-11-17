@@ -1,10 +1,9 @@
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
-using System.Collections.Generic;
 namespace ProyectoJuego 
 {
     public class GameOverScene : Scene
@@ -24,6 +23,16 @@ namespace ProyectoJuego
         font = content.Load<SpriteFont>("font");
       }
 
+      public override void Update(GameTime gameTime)
+      {
+        MediaPlayer.Pause();
+        var keyboardStateGameOver = Keyboard.GetState();
+        if (keyboardStateGameOver.IsKeyDown(Keys.R))
+          { reset?.Invoke(); }
+        else if (keyboardStateGameOver.IsKeyDown(Keys.Escape))
+          { Exit?.Invoke(); }
+      }
+
       public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
       {
         spriteBatch.DrawString(font, "Game Over",
@@ -38,18 +47,7 @@ namespace ProyectoJuego
 
       public override void DrawUI(GameTime gameTime, SpriteBatch spriteBatch)
       { }
-
-
       public override void UnloadContent()
       { }
-
-      public override void Update(GameTime gameTime)
-      {
-        var keyboardStateGameOver = Keyboard.GetState();
-        if (keyboardStateGameOver.IsKeyDown(Keys.R))
-        { reset?.Invoke(); }
-        else if (keyboardStateGameOver.IsKeyDown(Keys.Escape))
-        { Exit?.Invoke(); }
-      }
   }
 }

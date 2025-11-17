@@ -145,6 +145,24 @@
 /processorParam:TextureFormat=Color
 /build:button.jpg
 
+#begin colision.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:colision.mp3
+
+#begin disparoEnemigo.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:disparoEnemigo.mp3
+
+#begin disparoJugador.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:disparoJugador.mp3
+
 #begin enemigo.jpg
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -168,18 +186,6 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:fireball.png
-
-#begin fondoCiudad.jpeg
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:fondoCiudad.jpeg
 
 #begin fondoCiudad.jpeg
 /importer:TextureImporter
@@ -271,6 +277,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:menuBackground.jpg
+
+#begin musicaFondo.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:musicaFondo.mp3
 
 #begin nuevoAutoJugador.png
 /importer:TextureImporter

@@ -3,6 +3,7 @@ using System.Diagnostics.Tracing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace ProyectoJuego
 {
@@ -27,13 +28,13 @@ namespace ProyectoJuego
             this.backgroundTexture = backgroundTexture;
             this.startGameAction = startGameAction;
             this.exitAction = exitAction;
-            //this.stupidAction = stupidAction;
 
             playButton = new Rectangle(525, 550, 200, 50);
             exitButton = new Rectangle(525, 650, 200, 50);
         }
         public MainMenu(SceneManager sceneManager)
         {
+          MediaPlayer.Pause(); // pause whatever song was playing before this class was created
           this.sceneManager = sceneManager;
           this.content = sceneManager.contentManager;
           this.graphics = sceneManager.graphics;
@@ -62,10 +63,6 @@ namespace ProyectoJuego
                 {
                     exitAction?.Invoke();
                 }
-                // else
-                // {
-                //     stupidAction?.Invoke();
-                // }
             }
         }
 

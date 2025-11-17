@@ -16,7 +16,7 @@ namespace ProyectoJuego
         private Texture2D rectangleTexture;
         private static object sync = new();
         private static Debugger instance;
-        public bool canDraw = true;
+        public bool canDraw = false;
         public static void Initialize(GraphicsDevice graphicsDevice)
         {
             if (instance != null) return;
@@ -43,47 +43,43 @@ namespace ProyectoJuego
         }
         public void DrawRectHollow(SpriteBatch spriteBatch, Rectangle rect, int thickness, Color color)
         {
-            if(!canDraw) return;
-            spriteBatch.Draw(
-                rectangleTexture,
-                new Rectangle(
-                    rect.X,
-                    rect.Y,
-                    rect.Width,
-                    thickness
-                ),
-                color
-            );
-            spriteBatch.Draw(
-                rectangleTexture,
-                new Rectangle(
-                    rect.X,
-                    rect.Bottom - thickness,
-                    rect.Width,
-                    thickness
-                ),
-                color
-            );
-            spriteBatch.Draw(
-                rectangleTexture,
-                new Rectangle(
-                    rect.X,
-                    rect.Y,
-                    thickness,
-                    rect.Height
-                ),
-                color
-            );
-            spriteBatch.Draw(
-                    rectangleTexture,
-                    new Rectangle(
-                    rect.Right - thickness,
-                    rect.Y,
-                    thickness,
-                    rect.Height
-                ),
-                color
-            );
+          if(!canDraw) return;
+          spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+              rect.X,
+              rect.Y,
+              rect.Width,
+              thickness),
+            color
+          );
+          spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+              rect.X,
+              rect.Bottom - thickness,
+              rect.Width,
+              thickness),
+            color
+          );
+          spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+                rect.X,
+                rect.Y,
+                thickness,
+                rect.Height),
+            color
+          );
+          spriteBatch.Draw(
+            rectangleTexture,
+            new Rectangle(
+            rect.Right - thickness,
+            rect.Y,
+            thickness,
+            rect.Height),
+            color
+          );
         }
     }
 }

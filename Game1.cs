@@ -1,10 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
-using System;
-using System.Collections.Generic;
 
 namespace ProyectoJuego
 {
@@ -25,6 +22,8 @@ namespace ProyectoJuego
 
     private SceneManager sceneManager;
 
+    private KeyboardState prevState;
+
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -34,6 +33,7 @@ namespace ProyectoJuego
         _graphics.PreferredBackBufferHeight = 1000;
         _graphics.ApplyChanges();
     }
+
     protected override void LoadContent() {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -47,47 +47,45 @@ namespace ProyectoJuego
         sceneManager.actionByState[GameState.Victory] = Victory;
 
         // Cargar música de fondo
-        //_backgroundMusic = Content.Load<Song>("musicaFondo"); // Archivo .mp3 o .wma
-
-        // Cargar efectos de sonido
-        //_playerShootSound = Content.Load<SoundEffect>("disparoJugador"); // Archivo .wav
-        //_enemyShootSound = Content.Load<SoundEffect>("disparoEnemigo"); // Archivo .wav
-        //_collisionSound = Content.Load<SoundEffect>("colision"); // Archivo .wav
-
-        // Inicia la música de fondo
-        //MediaPlayer.IsRepeating = true; // Repetir música en bucle
-        //MediaPlayer.Volume = 0.5f;     // Ajustar volumen de la música
-        //MediaPlayer.Play(_backgroundMusic);
-        //
-        // Carga de texturas
+        var _backgroundMusic = Content.Load<Song>("musicaFondo");
+        MediaPlayer.IsRepeating = true;
+        MediaPlayer.Volume = 0.5f;
+        MediaPlayer.Play(_backgroundMusic);
 
         sceneManager.AddScene(new MainMenu(sceneManager));
-
         Debugger.Initialize(_graphics.GraphicsDevice);
     }
-    KeyboardState lastState = new();
 
     protected override void Update(GameTime gameTime)
     {
       if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed ||
           Keyboard.GetState().IsKeyDown(Keys.Escape))
-          {Exit();}
+        {Exit();}
+      if(Keyboard.GetState().IsKeyDown(Keys.F3) && prevState.IsKeyUp(Keys.F3))
+      {
+        Debugger.Instance.canDraw = !Debugger.Instance.canDraw; 
+      }
+
       sceneManager.GetScene().Update(gameTime);
+
+      prevState = Keyboard.GetState();
       base.Update(gameTime);
     }
+    protected override void Draw(GameTime gameTime)
+    {
+      GraphicsDevice.Clear(Color.CornflowerBlue);
+
+      _spriteBatch.Begin();
+      sceneManager.GetScene().Draw(gameTime, _spriteBatch);
+      _spriteBatch.End();
+
+      base.Draw(gameTime);
+    }
+    //wrapper region
     private void ResetGame()
     {
       LoadContent();
       StartGame();
-    }
-    protected override void Draw(GameTime gameTime)
-    {
-        GraphicsDevice.Clear(Color.CornflowerBlue);
-
-        _spriteBatch.Begin();
-        sceneManager.GetScene().Draw(gameTime, _spriteBatch);
-        _spriteBatch.End();
-        base.Draw(gameTime);
     }
     private void StartGame()
     {
@@ -95,7 +93,7 @@ namespace ProyectoJuego
     }
     private void Pause()
     {
-      sceneManager.AddScene(new PauseScene(Content, _graphics));
+      sceneManager.AddScene(new PauseScene(sceneManager, Content, _graphics));
     }
     private void GameOver()
     {

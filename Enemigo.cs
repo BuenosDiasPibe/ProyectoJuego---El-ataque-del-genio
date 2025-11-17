@@ -26,7 +26,7 @@ namespace ProyectoJuego
         public int Vida => vida;
         public Vector2 Position => position;
         public Texture2D Texture => texture;
-        public bool DisparoRealizado { get; private set; }
+        public bool DisparoRealizado { get; set; }
 
         public Enemigo(Texture2D texture, Texture2D fireballTexture, Vector2 position, float speed, float leftBoundary, float rightBoundary)
         {
@@ -93,13 +93,13 @@ namespace ProyectoJuego
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, position, Color.White);
-            Debugger.Instance.DrawRectHollow(spriteBatch, new((int)position.X, (int)position.Y, texture.Width, texture.Height), 4, Color.Red);
+          spriteBatch.Draw(texture, position, Color.White);
+          Debugger.Instance.DrawRectHollow(spriteBatch, new((int)position.X, (int)position.Y, texture.Width, texture.Height), 4, Color.Red);
 
-            foreach (var bolaDeFuego in bolasDeFuego)
-            {
-                bolaDeFuego.Draw(spriteBatch);
-            }
+          foreach (var bolaDeFuego in bolasDeFuego)
+          {
+            bolaDeFuego.Draw(spriteBatch);
+          }
         }
 
         // Genera un nuevo disparo en dirección al jugador
@@ -115,8 +115,9 @@ namespace ProyectoJuego
 
             Projectile nuevaBola = new(fireballTexture, ProjectileType.EnemyShoot, position, direction, 10f);
             bolasDeFuego.Add(nuevaBola);
+            DisparoRealizado = true;
         }
-        private bool ColisionaConJugador(Projectile bolaDeFuego, Jugador jugador)
+        private static bool ColisionaConJugador(Projectile bolaDeFuego, Jugador jugador)
         {
             //TODO: poner las coliciones en el centro de los rectangulos
             //float escalaBolaDeFuego = 0.01f;
@@ -141,15 +142,21 @@ namespace ProyectoJuego
             int healthWidth = (int)(vida / 100f * barWidth);
 
             spriteBatch.Draw(//background
-                texture,
-                new Rectangle((int)position.X, (int)(position.Y - barHeight*1.2f), barWidth, barHeight),
-                Color.Yellow
+              texture,
+              new Rectangle(
+                (int)position.X, 
+                (int)(position.Y - barHeight*1.2f), 
+                barWidth, barHeight),
+              Color.Yellow
             );
 
             spriteBatch.Draw(//foreground
-                texture,
-                new Rectangle((int)position.X, (int)(position.Y - barHeight*1.2f), healthWidth, barHeight),
-                Color.Red
+              texture,
+              new Rectangle(
+                (int)position.X, 
+                (int)(position.Y - barHeight*1.2f),
+                healthWidth, barHeight),
+              Color.Red
             );
         }
     }
