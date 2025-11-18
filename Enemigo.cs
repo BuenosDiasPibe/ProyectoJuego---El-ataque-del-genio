@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Audio;
 
 namespace ProyectoJuego
 {
@@ -26,7 +24,9 @@ namespace ProyectoJuego
         public int Vida => vida;
         public Vector2 Position => position;
         public Texture2D Texture => texture;
-        public bool DisparoRealizado { get; set; }
+        public SoundEffectInstance sfx_disparo;
+        public SoundEffectInstance sfx_daño;
+        public SoundEffectInstance sfx_matado;
 
         public Enemigo(Texture2D texture, Texture2D fireballTexture, Vector2 position, float speed, float leftBoundary, float rightBoundary)
         {
@@ -46,8 +46,9 @@ namespace ProyectoJuego
         {
             if(vida <= 0)
             {
-                EnemigoMuerto = true;
-                return;
+              sfx_matado?.Play();
+              EnemigoMuerto = true;
+              return;
             }
             vida -= daño;
         }
@@ -80,7 +81,7 @@ namespace ProyectoJuego
                 // Comprueba colisión con el jugador
                 if (ColisionaConJugador(bolasDeFuego[i], jugador))
                 {
-                    jugador.ReducirVida(10);
+                    jugador.ReducirVida(5);
                     bolasDeFuego.RemoveAt(i);
                     continue;
                 }
@@ -115,7 +116,7 @@ namespace ProyectoJuego
 
             Projectile nuevaBola = new(fireballTexture, ProjectileType.EnemyShoot, position, direction, 10f);
             bolasDeFuego.Add(nuevaBola);
-            DisparoRealizado = true;
+            sfx_disparo?.Play();
         }
         private static bool ColisionaConJugador(Projectile bolaDeFuego, Jugador jugador)
         {
@@ -128,10 +129,10 @@ namespace ProyectoJuego
                 (int)(bolaDeFuego.texture.Height) // * escalaBolaDeFuego)
             );
             Rectangle jugadorRect = new Rectangle(
-                (int)jugador.Position.X,
-                (int)jugador.Position.Y,
-                (int)(jugador.Texture.Width), //* 0.25f),
-                (int)(jugador.Texture.Height)// * 0.5f)
+                (int)jugador.position.X,
+                (int)jugador.position.Y,
+                (int)(jugador.texture.Width),
+                (int)(jugador.texture.Height)
             );
             return balaRect.Intersects(jugadorRect);
         }

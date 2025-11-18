@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,6 +6,7 @@ namespace ProyectoJuego
 {
   public abstract class Scene
   {
+    // TODO: get back to a interface IScene, i dont need this
     public ContentManager content;
     public GraphicsDeviceManager graphics;
 

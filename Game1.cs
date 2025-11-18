@@ -82,24 +82,24 @@ namespace ProyectoJuego
       base.Draw(gameTime);
     }
     //wrapper region
-    private void ResetGame()
+    void ResetGame()
     {
       LoadContent();
       StartGame();
     }
-    private void StartGame()
+    void StartGame()
     {
       sceneManager.AddScene(new GameplayScene(Content, sceneManager, _graphics));
     }
-    private void Pause()
+    void Pause()
     {
       sceneManager.AddScene(new PauseScene(sceneManager, Content, _graphics));
     }
-    private void GameOver()
+    void GameOver()
     {
       sceneManager.AddScene(new GameOverScene(sceneManager));
     }
-    private void Victory()
+    void Victory()
     {
       sceneManager.AddScene(new VictoryScene(sceneManager));
     }

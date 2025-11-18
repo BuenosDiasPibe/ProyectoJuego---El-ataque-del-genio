@@ -175,6 +175,12 @@
 /processorParam:TextureFormat=Color
 /build:enemigo.jpg
 
+#begin FinalBlow.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:FinalBlow.ogg
+
 #begin fireball.png
 /importer:TextureImporter
 /processor:TextureProcessor

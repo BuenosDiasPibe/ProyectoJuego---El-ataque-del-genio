@@ -10,35 +10,33 @@ namespace ProyectoJuego
 {
   public class GameplayScene : Scene
   {
-    private Texture2D _gameBackgroundTexture;
-    private Jugador jugador;
-    Texture2D jugador_text;
-    private Enemigo enemigo;
+    Texture2D _gameBackgroundTexture;
+    Texture2D solidColor;
+    Jugador jugador;
+    Enemigo enemigo;
 
-    private List<Projectile> _obstaculos;
-    private Texture2D _obstaculoTexture;
-    private float _spawnCooldown;
-    private float _timeSinceLastSpawn;
+    List<Projectile> _obstaculos = new();
+    Texture2D _obstaculoTexture;
+    float _spawnCooldown = 2f;
+    float _timeSinceLastSpawn = 0f;
 
-    private SceneManager sm;
-    private GraphicsDeviceManager gd;
+    SceneManager sm;
 
-    private float _backgroundOffsetY = 0;
-    private readonly float _backgroundSpeed = 2;
+    float _backgroundOffsetY = 0;
+    readonly float _backgroundSpeed = 2;
 
-    private event Action pause;
-    private event Action gameOver;
-    private event Action victory;
+    Action pause;
+    Action gameOver;
+    Action victory;
+
     KeyboardState lastKey;
-    SoundEffectInstance _playerShootSound;
-    SoundEffectInstance _enemyShootSound;
     SoundEffectInstance _collisionSound;
 
     public GameplayScene( ContentManager cm, SceneManager sm, GraphicsDeviceManager gd) 
     {
       this.content = cm;
       this.sm = sm;
-      this.gd = gd;
+      this.graphics = gd;
       pause = sm.actionByState[GameState.Paused];
       gameOver = sm.actionByState[GameState.GameOver];
       victory = sm.actionByState[GameState.Victory];
@@ -47,34 +45,35 @@ namespace ProyectoJuego
     public override void LoadContent()
     {
       MediaPlayer.Resume();
-      _obstaculos = new();
-      _spawnCooldown = 2f;
-      _timeSinceLastSpawn = 0f;
-
-      _obstaculoTexture = content.Load<Texture2D>("enemigo");
-      Texture2D enemyTexture = content.Load<Texture2D>("nuevoAutoPolicia");
-      Texture2D fireballTexture = content.Load<Texture2D>("balaPolicia");
-      Texture2D playerTexture = content.Load<Texture2D>("nuevoAutoJugador");
-      jugador_text = content.Load<Texture2D>("jugador");
-
-      _playerShootSound = content.Load<SoundEffect>("disparoJugador").CreateInstance();
-      _enemyShootSound = content.Load<SoundEffect>("disparoEnemigo").CreateInstance();
-      _collisionSound = content.Load<SoundEffect>("colision").CreateInstance();
-
       _gameBackgroundTexture = content.Load<Texture2D>("fondoCiudad");
 
-      jugador = new Jugador(playerTexture,
+      _obstaculoTexture = content.Load<Texture2D>("enemigo");
+      solidColor = content.Load<Texture2D>("jugador");
+
+      _collisionSound = content.Load<SoundEffect>("colision").CreateInstance();
+
+      jugador = new Jugador(content.Load<Texture2D>("nuevoAutoJugador"),
                             content.Load<Texture2D>("balaJugador2"),
-                            new Vector2(600, 100), 8f,
-                            gd.PreferredBackBufferWidth,
-                            gd.PreferredBackBufferHeight,
-                            100);
-            jugador.sfx = base.content.Load<SoundEffect>("disparoJugador");
+                            position: new Vector2(600, 100), speed: 8f,
+                            bounds: new( 255, 0, 1015-255, graphics.PreferredBackBufferHeight),
+                            vida: 10);
+      jugador.sfx_disparo =  base.content.Load<SoundEffect>("disparoJugador");// esto debe ser parte de jugador
 
       enemigo = new Enemigo(content.Load<Texture2D>("nuevoAutoPolicia"),
                             content.Load<Texture2D>("balaPolicia"),
                             new Vector2(400, 700),
                             6f, 100f, 775f);
+      enemigo.sfx_disparo = content.Load<SoundEffect>("disparoEnemigo").CreateInstance();
+      enemigo.sfx_matado = content.Load<SoundEffect>("FinalBlow").CreateInstance();
+    }
+    //go on Utils.cs
+    void playSFX(SoundEffectInstance sfx, bool waitForFinishLastSFX = false)
+    {
+      Random r = new();
+      sfx.Pitch = (float)r.NextDouble();
+      if(waitForFinishLastSFX && sfx.State == SoundState.Playing)
+      { return; }
+      sfx.Play();
     }
 
     public override void Update(GameTime gameTime)
@@ -82,25 +81,15 @@ namespace ProyectoJuego
       _backgroundOffsetY += _backgroundSpeed; //moving background
       Random random = new();
       if(Keyboard.GetState().IsKeyDown(Keys.P) && lastKey.IsKeyUp(Keys.P))
-      {
-        pause?.Invoke();
-      }
+      { pause?.Invoke(); }
 
-      if (_backgroundOffsetY >= gd.PreferredBackBufferHeight)
-      {
-          _backgroundOffsetY = 0f;
-      }
+      if (_backgroundOffsetY >= graphics.PreferredBackBufferHeight)
+      { _backgroundOffsetY = 0f; }
 
       jugador.Update(gameTime);
       if (enemigo != null)
       {
-          enemigo.Update(gameTime, jugador.Position, jugador);
-
-        if (enemigo.DisparoRealizado)
-        {
-          _enemyShootSound.Play();
-          enemigo.DisparoRealizado = false;
-        }
+        enemigo.Update(gameTime, jugador.position, jugador);
 
         if (enemigo.Vida <= 0)
         {
@@ -110,59 +99,59 @@ namespace ProyectoJuego
         }
       }
 
-      for (int i = jugador.Balas.Count - 1; i >= 0; i--)
+      for (int i = jugador.balas.Count - 1; i >= 0; i--)
       {
-          jugador.Balas[i].Update(gameTime);
+        jugador.balas[i].Update(gameTime);
 
-          if (enemigo != null && ColisionaConEnemigo(jugador.Balas[i], enemigo))
+        if (enemigo != null && ColisionaConEnemigo(jugador.balas[i], enemigo))
+        {
+          _collisionSound.Play(); // Sonido de colisión al golpear al enemigo
+          enemigo.RecibirDaño(1);
+          jugador.balas.RemoveAt(i);
+
+          if (enemigo.Vida <= 0)
           {
-              _collisionSound.Play(); // Sonido de colisión al golpear al enemigo
-              enemigo.RecibirDaño(1);
-              jugador.Balas.RemoveAt(i);
-
-              if (enemigo.Vida <= 0)
-              {
-                enemigo = null;
-                MediaPlayer.Pause();
-                victory?.Invoke();
-              }
+            enemigo = null;
+            MediaPlayer.Pause();
+            victory?.Invoke();
           }
+        }
       }
       _timeSinceLastSpawn += (float)gameTime.ElapsedGameTime.TotalSeconds;
       if (_timeSinceLastSpawn >= _spawnCooldown)
       {
-          int minX = 300;
-          int maxX = gd.PreferredBackBufferWidth - 300;
+        int minX = 300;
+        int maxX = graphics.PreferredBackBufferWidth - 300;
 
-          float randomX = random.Next(minX, maxX);
-          float speed = 1;
-          Projectile nuevoObstaculo = new(
-              _obstaculoTexture,
-              ProjectileType.Obstacle,
-              new Vector2(randomX, -_obstaculoTexture.Height),
-              new(0,speed),
-              speed
-          );
+        float randomX = random.Next(minX, maxX);
+        float speed = 1;
+        Projectile nuevoObstaculo = new(
+            _obstaculoTexture,
+            ProjectileType.Obstacle,
+            new Vector2(randomX, -_obstaculoTexture.Height),
+            new(0,speed),
+            speed
+        );
 
-          _obstaculos.Add(nuevoObstaculo);
-          _timeSinceLastSpawn = 0f;
+        _obstaculos.Add(nuevoObstaculo);
+        _timeSinceLastSpawn = 0f;
       }
       for (int i = _obstaculos.Count - 1; i >= 0; i--)
       {
-          _obstaculos[i].Update(gameTime);
+        _obstaculos[i].Update(gameTime);
 
-          if (ColisionaConJugador(_obstaculos[i], jugador))
-          {
-            _collisionSound.Pitch = (float)random.NextDouble();
-            _collisionSound.Play();
+        if (ColisionaConJugador(_obstaculos[i], jugador))
+        {
+          _collisionSound.Pitch = (float)random.NextDouble();
+          _collisionSound.Play();
 
-            jugador.ReducirVida(1);
-            _obstaculos.RemoveAt(i);
-          }
-          else if (_obstaculos[i].position.Y > gd.PreferredBackBufferHeight)
-          {
-              _obstaculos.RemoveAt(i);
-          }
+          jugador.ReducirVida(1);
+          _obstaculos.RemoveAt(i);
+        }
+        else if (_obstaculos[i].position.Y > graphics.PreferredBackBufferHeight)
+        {
+          _obstaculos.RemoveAt(i);
+        }
       }
       if (jugador.Vida <= 0)
       {
@@ -177,32 +166,30 @@ namespace ProyectoJuego
       spriteBatch.Draw(
         _gameBackgroundTexture,
         new Rectangle(0, (int)-_backgroundOffsetY,
-                      gd.PreferredBackBufferWidth,
-                      gd.PreferredBackBufferHeight),
+                      graphics.PreferredBackBufferWidth,
+                      graphics.PreferredBackBufferHeight),
         Color.White
       );
 
       spriteBatch.Draw(
         _gameBackgroundTexture,
         new Rectangle(0,
-                    (int)(-_backgroundOffsetY + gd.PreferredBackBufferHeight),
-                    gd.PreferredBackBufferWidth,
-                    gd.PreferredBackBufferHeight),
+                    (int)(-_backgroundOffsetY + graphics.PreferredBackBufferHeight),
+                    graphics.PreferredBackBufferWidth,
+                    graphics.PreferredBackBufferHeight),
         Color.White
       );
 
       foreach (var obstaculo in _obstaculos)
-      {
-        obstaculo.Draw(spriteBatch);
-      }
+      { obstaculo.Draw(spriteBatch); }
 
       jugador.Draw(spriteBatch);
-      Debugger.Instance.DrawRectHollow(spriteBatch, new((int)jugador.Position.X, (int)jugador.Position.Y, jugador.Texture.Width, jugador.Texture.Height), 4, Color.White);
-      jugador.DrawHealthBar(spriteBatch, jugador_text);
+      Debugger.Instance.DrawRectHollow(spriteBatch, new((int)jugador.position.X, (int)jugador.position.Y, jugador.texture.Width, jugador.texture.Height), 4, Color.White);
+      jugador.DrawHealthBar(spriteBatch, solidColor);
       if(enemigo != null)
       {
           enemigo.Draw(spriteBatch);
-          enemigo.DrawHealthBar(spriteBatch, jugador_text);
+          enemigo.DrawHealthBar(spriteBatch, solidColor);
       }
     }
 
@@ -225,10 +212,10 @@ namespace ProyectoJuego
         );
 
         Rectangle jugadorRect = new Rectangle(
-            (int)jugador.Position.X,
-            (int)jugador.Position.Y,
-            (int)(jugador.Texture.Width),// * escalaJugador),
-            (int)(jugador.Texture.Height)// * escalaJugadorAltura)
+            (int)jugador.position.X,
+            (int)jugador.position.Y,
+            (int)(jugador.texture.Width),// * escalaJugador),
+            (int)(jugador.texture.Height)// * escalaJugadorAltura)
         );
         return obstaculoRect.Intersects(jugadorRect); // Verifica la colisión
     }

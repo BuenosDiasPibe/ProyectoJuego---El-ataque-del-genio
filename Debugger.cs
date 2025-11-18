@@ -2,17 +2,13 @@
     From Juegazo codebase
 */
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace ProyectoJuego
 {
-    public class Debugger
-{
+  public class Debugger
+  {
         private Texture2D rectangleTexture;
         private static object sync = new();
         private static Debugger instance;
@@ -81,5 +77,5 @@ namespace ProyectoJuego
             color
           );
         }
-    }
+  }
 }

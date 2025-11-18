@@ -10,58 +10,57 @@ namespace ProyectoJuego
     // Clase que representa al jugador en el juego
     public class Jugador
     {
-        // Campos privados
-        private Texture2D texture;
-        private Vector2 position;
         private float speed;
         private int vida;
-        private int screenWidth;
-        private int screenHeight;
+        private Rectangle bounds;
         private Texture2D bulletTexture;
-        private List<Projectile> balas;
-        public List<Projectile> Balas => balas;
-        public Texture2D Texture => texture;  // Textura del jugador
-        public Vector2 Position => position;  // Posición del jugador
-        public int Vida => vida;              // Vida del jugador
-        public SoundEffect sfx;
 
-        public Jugador(Texture2D texture, Texture2D bulletTexture, Vector2 position, float speed, int screenWidth, int screenHeight, int vida)
+        public List<Projectile> balas { get; private set; }
+        public Texture2D texture { get; private set; }
+        public Vector2 position;
+        public int Vida => vida;
+
+        // add this to a component class
+        public SoundEffect sfx_disparo;
+        public SoundEffectInstance sfx_daño_enemigo;
+        public SoundEffectInstance sfx_muerto;
+
+
+        public Jugador(Texture2D texture, Texture2D bulletTexture, Vector2 position, float speed,Rectangle bounds, int vida)
         {
             this.texture = texture;
             this.bulletTexture = bulletTexture;
             this.position = position;
             this.speed = speed;
-            this.vida = 2;
-            this.screenWidth = screenWidth;
-            this.screenHeight = screenHeight;
+            this.vida = vida;
+            this.bounds = bounds;
             balas = new();
         }
+
         public void Update(GameTime gameTime)
         {
-            var keyboardState = Keyboard.GetState(); // Obtiene el estado actual del teclado
+            var keyboardState = Keyboard.GetState();
             
-            // Movimiento hacia arriba
-            if (keyboardState.IsKeyDown(Keys.W) || keyboardState.IsKeyDown(Keys.Up))
-                position.Y -= speed;
+            if (keyboardState.IsKeyDown(Keys.W) ||
+                keyboardState.IsKeyDown(Keys.Up))
+            { position.Y -= speed; }
+            if (keyboardState.IsKeyDown(Keys.S) ||
+                keyboardState.IsKeyDown(Keys.Down))
+            { position.Y += speed; }
 
-            // Movimiento hacia abajo
-            if (keyboardState.IsKeyDown(Keys.S) || keyboardState.IsKeyDown(Keys.Down))
-                position.Y += speed;
+            position.Y = MathHelper.Clamp(position.Y, bounds.Top, bounds.Bottom - texture.Height); // clamp to max height
 
-            position.Y = MathHelper.Clamp(position.Y, 0, screenHeight - texture.Height);
+            if ((keyboardState.IsKeyDown(Keys.A) ||
+                keyboardState.IsKeyDown(Keys.Left)))
+            { position.X -= speed; }
+            if ((keyboardState.IsKeyDown(Keys.D) ||
+                keyboardState.IsKeyDown(Keys.Right)))
+            { position.X += speed; }
 
-            if ((keyboardState.IsKeyDown(Keys.A) || keyboardState.IsKeyDown(Keys.Left)) && position.X > 50)
-                position.X -= speed;
-
-            if ((keyboardState.IsKeyDown(Keys.D) || keyboardState.IsKeyDown(Keys.Right)) && position.X < 900)
-                position.X += speed;
-
-            position.X = MathHelper.Clamp(position.X, 0, screenWidth - texture.Width);
+            position.X = MathHelper.Clamp(position.X, bounds.Left, bounds.Right - texture.Width); // clamp to max width
 
             if (keyboardState.IsKeyDown(Keys.Space))
-            {
-                Disparar();
-            }
+            { Disparar(); }
 
             for (int i = balas.Count - 1; i >= 0; i--)
             {
@@ -69,6 +68,8 @@ namespace ProyectoJuego
                 if (balas[i].position.Y < 0)
                 { balas.RemoveAt(i); }
             }
+            Console.Clear();
+            Console.WriteLine($"jugador_pos: {position}");
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -79,19 +80,24 @@ namespace ProyectoJuego
 
         private void Disparar()
         {
-            Vector2 bulletPositionLeft = new Vector2(
-                position.X - bulletTexture.Width/30,
-                position.Y + texture.Height - bulletTexture.Height
-            );
-            Vector2 direction = new Vector2(0, 1);
-            Projectile balaIzquierda = new(bulletTexture, ProjectileType.PlayerShoot, bulletPositionLeft, direction, 5f);
-            sfx.Play();
-            balas.Add(balaIzquierda);
+          sfx_disparo.Play();
+          Vector2 bulletPositionLeft = new (
+            position.X - bulletTexture.Width/30,
+            position.Y + texture.Height - bulletTexture.Height
+          );
+          Projectile balaIzquierda = new(
+            bulletTexture, ProjectileType.PlayerShoot, 
+            bulletPositionLeft, new(0,1), 5f
+          );
+          balas.Add(balaIzquierda);
         }
         public void ReducirVida(int cantidad)
         {
-            if (vida <= 0) return;
-            Console.WriteLine($"vida: {vida}");
+            if (vida <= 0)
+            {
+              sfx_muerto?.Play();
+              return;
+            }
             vida -= cantidad;
         }
         public void DrawHealthBar(SpriteBatch spriteBatch, Texture2D texture)

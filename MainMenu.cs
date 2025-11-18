@@ -51,19 +51,19 @@ namespace ProyectoJuego
 
         public override void Update(GameTime gameTime)
         {
-            MouseState mouseState = Mouse.GetState();
+          MouseState mouseState = Mouse.GetState();
 
-            if (mouseState.LeftButton == ButtonState.Pressed)
-            {
-                if (playButton.Contains(mouseState.Position))
-                {
-                    startGameAction?.Invoke();
-                }
-                else if (exitButton.Contains(mouseState.Position))
-                {
-                    exitAction?.Invoke();
-                }
-            }
+          if (mouseState.LeftButton == ButtonState.Pressed)
+          {
+              if (playButton.Contains(mouseState.Position))
+              {
+                  startGameAction?.Invoke();
+              }
+              else if (exitButton.Contains(mouseState.Position))
+              {
+                  exitAction?.Invoke();
+              }
+          }
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
